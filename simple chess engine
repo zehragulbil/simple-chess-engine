@@ -1,0 +1,67 @@
+import chess
+import chess.engine
+import random
+
+class SimpleChessEngine:
+    def __init__(self):
+        self.board = chess.Board()
+
+    def display_board(self):
+        print(self.board)
+
+    def player_move(self, move):
+        try:
+            self.board.push_uci(move)
+            return True
+        except ValueError:
+            print("Invalid move. Try again.")
+            return False
+
+    def engine_move(self):
+        legal_moves = list(self.board.legal_moves)
+        if not legal_moves:
+            return None
+        move = random.choice(legal_moves)
+        self.board.push(move)
+        return move
+
+    def check_game_status(self):
+        if self.board.is_checkmate():
+            return "Checkmate"
+        elif self.board.is_stalemate():
+            return "Stalemate"
+        elif self.board.is_insufficient_material():
+            return "Draw (Insufficient Material)"
+        elif self.board.is_game_over():
+            return "Game Over"
+        else:
+            return "Game continues"
+
+def main():
+    engine = SimpleChessEngine()
+    print("Welcome to Simple Chess Engine!")
+    print("To play, enter your moves in UCI format (e.g., e2e4).")
+
+    while True:
+        engine.display_board()
+        if engine.check_game_status() != "Game continues":
+            print("Game over:", engine.check_game_status())
+            break
+
+        player_move = input("Your move: ")
+        if player_move == "quit":
+            print("Exiting game. Thanks for playing!")
+            break
+
+        if not engine.player_move(player_move):
+            continue
+
+        engine_move = engine.engine_move()
+        if engine_move is None:
+            print("No legal moves left for the engine.")
+            print("Game over:", engine.check_game_status())
+            break
+        print(f"Engine moves: {engine_move.uci()}")
+
+if __name__ == "__main__":
+    main()
